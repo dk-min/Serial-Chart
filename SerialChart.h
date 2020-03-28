@@ -16,6 +16,7 @@ QT_END_NAMESPACE
 
 
 #define BUFFER 128
+#define CHNUM 10
 
 class SerialChart : public QObject
 {
@@ -29,7 +30,7 @@ public:
     explicit SerialChart(QObject *parent = nullptr);
     explicit SerialChart(int count, QObject *parent);
 
-    void startUpdates(QLineSeries* series1, QLineSeries* series2);
+    void startUpdates(QLineSeries* series, int index);
     void WriteBaudrate(QString buadrate);
     QString ReadBaudrate(void);
 
@@ -44,6 +45,7 @@ public:
 
     void ReadSerialData(void);
     void initchart(void);
+    void TimerStart(void);
 
     void Setcolcount(int x);
 
@@ -84,13 +86,11 @@ private:
     QAbstractSeries *series;
     QList<QVector<QPointF> > m_chartdata;
 
-    QVector<QPointF> ch1_points;
-    QVector<QPointF> ch2_points;
+    QVector<QPointF> ch_points[CHNUM];
     int buf_point = 0;
     qreal x = 0;
     qreal y = 0;
-    QLineSeries* chart_series1;
-    QLineSeries* chart_series2;
+    QLineSeries* chart_series[CHNUM];
 
     QElapsedTimer m_fpsTimer;
     QTimer m_dataUpdater;

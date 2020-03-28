@@ -4,12 +4,8 @@ Plot::Plot(QObject *parent) : QObject(parent)
 {
 }
 
-QLineSeries *Plot::series1return(void){
-    return series1;
-}
-
-QLineSeries *Plot::series2return(void){
-    return series2;
+QLineSeries *Plot::seriesreturn(int index){
+    return &series[index];
 }
 
 QChart *Plot::returnchart(){
@@ -38,19 +34,26 @@ void Plot::start(void){
     serialchart->initchart();
     serialchart->initserial();
 
-    serialchart->startUpdates(this->series1return(), this->series2return());
+    for(int i = 0; i < CHNUM; i++){
+        serialchart->startUpdates(this->seriesreturn(i), i);
+    }
+    serialchart->TimerStart();
+
+
 
     chart->addAxis(axisX, Qt::AlignBottom);
     chart->addAxis(axisY, Qt::AlignLeft);
 
-    series1->setUseOpenGL(true);
-    series2->setUseOpenGL(true);
+    for(int i = 0; i < CHNUM; i++){
+        series[i].setUseOpenGL(true);
+        chart->addSeries(&series[i]);
+    }
 
-    chart->addSeries(series1);
-    chart->addSeries(series2);
 
-    chart->setAxisX(axisX, series1);
-    chart->setAxisY(axisY, series1);
+
+
+    chart->setAxisX(axisX, &series[0]);
+    chart->setAxisY(axisY, &series[0]);
 
     axisX->setRange(0, xhigh);
     axisY->setRange(ylow, yhigh);
