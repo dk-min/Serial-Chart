@@ -47,6 +47,7 @@ void Plot::start(void){
     for(int i = 0; i < CHNUM; i++){
         series[i].setUseOpenGL(true);
         chart->addSeries(&series[i]);
+
     }
 
 
@@ -57,13 +58,14 @@ void Plot::start(void){
 
     axisX->setRange(0, xhigh);
     axisY->setRange(ylow, yhigh);
-    chart->legend()->hide();
 
     chart->createDefaultAxes();
     chart->setTitle("Serial Chart");
+    chart->legend()->setVisible(true);
+    chart->legend()->setAlignment(Qt::AlignBottom);
 
     QChartView *chartView = new QChartView(chart);
-    chartView->chart()->setTheme(QChart::ChartThemeBrownSand);
+    chartView->chart()->setTheme(QChart::ChartThemeLight);
     chartView->setRenderHint(QPainter::Antialiasing);
 
     QObject::connect(chart->scene(), &QGraphicsScene::changed,
