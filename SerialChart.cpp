@@ -64,10 +64,12 @@ void SerialChart::initserial(void){
 }
 
 void SerialChart::Receivedata(void){
-    QString received;
+    QString received, buffer;
     while (Device->canReadLine()){
-        received = Device-> readLine(); // reads in data line by line, separated by \n or \r characters
-        received = received.trimmed();  // remove separated flag \n or \r
+        buffer = Device-> readLine(); // reads in data line by line, separated by \n or \r characters
+        if(buffer.contains("\n")){
+            received = buffer.trimmed();  // remove separated flag \n or \r
+        }
         //qDebug() << received;
     }
     if(received.contains(",", Qt::CaseInsensitive)){
@@ -76,13 +78,13 @@ void SerialChart::Receivedata(void){
     }
     else {
         //qDebug() << "it dosen't contain ','";
-        data = received.split(",", QString::SkipEmptyParts);
+        data = received.split("", QString::SkipEmptyParts);
     }
     data_count = data.size();
     //qDebug() << data;
     qDebug() << "data count is" << data_count;
-
-    emit datarecieved();
+    if(data_count)
+        emit datarecieved();
 }
 
 float SerialChart::Readdata(void){
@@ -97,11 +99,10 @@ void SerialChart::update(QAbstractSeries* series, int index){
 
 void SerialChart::ReadSerialData(void)
 {
-    ch1_points.replace(buf_point, QPointF(buf_point, data.at(0).toDouble()));
-    ch2_points.replace(buf_point, QPointF(buf_point, data.at(1).toDouble()));
-
-    m_chartdata.replace(0, ch1_points);
-    m_chartdata.replace(1, ch2_points);
+    for(int i = 0; i < data_count; i++){
+        ch_points[i].replace(buf_point, QPointF(buf_point, data.at(i).toDouble()));
+        m_chartdata.replace(i, ch_points[i]);
+    }
     if(++buf_point >= colCount){
         buf_point = 0;
     }
@@ -121,7 +122,7 @@ void SerialChart::txtfileadd(void){
     textarray.append(textdata);
     textdata.clear();
     file->write(textarray);
-    //ReadSerialData();
+    ReadSerialData();
     file->close();
 }
 
@@ -132,17 +133,18 @@ void SerialChart::handleSceneChanged(void)
 
 
 void SerialChart::initchart(void){
-    ch1_points.clear();
-    ch2_points.clear();
-    ch1_points.reserve(colCount);
-    ch2_points.reserve(colCount);
-    m_chartdata.clear();
-    for(int i = 0; i < colCount; i++){
-        ch1_points.append(QPointF(i, 0));
-        ch2_points.append(QPointF(i, 0));
+    for(int i = 0; i < CHNUM; i++){
+        ch_points[i].clear();
+        ch_points[i].reserve(colCount);
+        for(int j = 0; j < colCount; j++){
+            ch_points[i].append(QPointF(j, 0));
+        }
     }
-    m_chartdata.append(ch1_points);
-    m_chartdata.append(ch2_points);
+
+    m_chartdata.clear();
+    for(int i = 0; i < CHNUM; i++){
+        m_chartdata.append(ch_points[i]);
+    }
     qDebug()<< "init completed!";
 }
 
@@ -150,23 +152,23 @@ void SerialChart::Setcolcount(int x){
     colCount = x;
 }
 
-void SerialChart::startUpdates(QLineSeries* series1, QLineSeries* series2)
+void SerialChart::startUpdates(QLineSeries* series, int index)
 {
-    chart_series1 = series1;
-    chart_series2 = series2;
+    chart_series[index] = series;
+}
 
-
+void SerialChart::TimerStart(void)
+{
     m_dataUpdater.setInterval(1/60*1000); // 60Hz
     m_dataUpdater.setSingleShot(true);
 
     connect(&m_dataUpdater, SIGNAL(timeout()), this, SLOT(updateAllSeries()));
-
-    updateAllSeries();
 }
 
 void SerialChart::updateAllSeries()
 {
-    update(chart_series1, 0);
-    update(chart_series2, 1);
+    for(int i = 0; i < CHNUM; i++){
+        update(chart_series[i], i);
+    }
 }
 

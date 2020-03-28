@@ -13,6 +13,7 @@
 #include <QtQuick/QQuickView>
 #include "SerialChart.h"
 
+
 QT_CHARTS_USE_NAMESPACE
 
 class Plot : public QObject{
@@ -22,9 +23,8 @@ public:
     Plot(QObject *parent = nullptr);
 
 
-    QLineSeries *series1return(void);
+    QLineSeries *seriesreturn(int index);
 
-    QLineSeries *series2return(void);
 
     QChart *returnchart();
 
@@ -45,8 +45,7 @@ private:
     QValueAxis *axisX = new QValueAxis;
     QValueAxis *axisY = new QValueAxis;
 
-    QLineSeries *series1 = new QLineSeries();
-    QLineSeries *series2 = new QLineSeries();
+    QLineSeries *series = new QLineSeries[CHNUM]();
     QChart *chart = new QChart();
     QFont font;
     QMainWindow window;
