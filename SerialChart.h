@@ -47,6 +47,9 @@ public:
     void initchart(void);
     void TimerStart(void);
 
+    bool isopen(void);
+    void close(void);
+
     void Setcolcount(int x);
 
 signals:
