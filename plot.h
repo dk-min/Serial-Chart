@@ -16,11 +16,12 @@
 
 QT_CHARTS_USE_NAMESPACE
 
-class Plot : public QObject{
+class Plot : public QMainWindow{
     Q_OBJECT
 
 public:
-    Plot(QObject *parent = nullptr);
+    //Plot(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
+    Plot();
 
 
     QLineSeries *seriesreturn(int index);
@@ -31,15 +32,18 @@ public:
     Q_INVOKABLE void setYlow(QString Ylow);
     Q_INVOKABLE void setXhigh(QString Xhigh);
     Q_INVOKABLE void setYhigh(QString Yhigh);
+    Q_INVOKABLE void setChannel(QString Channel);
     Q_INVOKABLE void start(void);
 
     void initserial(SerialChart* mserial);
 
 signals:
 
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 private:
-    SerialChart *serialchart;
+    SerialChart *serialchart = new SerialChart;
     QQuickView viewer;
 
     QValueAxis *axisX = new QValueAxis;
@@ -48,9 +52,9 @@ private:
     QLineSeries *series = new QLineSeries[CHNUM]();
     QChart *chart = new QChart();
     QFont font;
-    QMainWindow window;
     qreal xlow, ylow, yhigh;
     qint32 xhigh;
+    int channel;
 };
 
 #endif // PLOT_H

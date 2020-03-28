@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    SerialChart mSerial;
-    PortNumber portnum;
-    Plot mplot;
-    mplot.initserial(&mSerial);
+    SerialChart *mSerial = new SerialChart;
+    PortNumber *portnum = new PortNumber;
+    Plot *mplot = new Plot;
+    mplot->initserial(mSerial);
 
-    engine.rootContext()->setContextProperty("portnum", &portnum);  // set portnum variable in qml file
-    engine.rootContext()->setContextProperty("serialC", &mSerial);  // set Serial variable in qml file
-    engine.rootContext()->setContextProperty("windowC", &mplot);    // set plot variable in qml file
+    engine.rootContext()->setContextProperty("portnum", portnum);  // set portnum variable in qml file
+    engine.rootContext()->setContextProperty("serialC", mSerial);  // set Serial variable in qml file
+    engine.rootContext()->setContextProperty("windowC", mplot);    // set plot variable in qml file
 
     qDebug()<< "qml variable setting is completed!";
 

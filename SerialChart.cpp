@@ -4,19 +4,12 @@
 
 #include <QAbstractSeries> 
 
-
-//Q_DECLARE_METATYPE(QAbstractSeries *)
-//Q_DECLARE_METATYPE(QAbstractAxis *)
-//Q_DECLARE_METATYPE(QLineSeries *)
-
 SerialChart::SerialChart(QObject *parent) : QObject(parent)
 {
     connect(Device, SIGNAL(readyRead()),this, SLOT(Receivedata()));
     connect(this, SIGNAL(datarecieved()),this, SLOT(txtfileadd()));
     connect(this, SIGNAL(isComportchanged()), this, SLOT(handleSceneChanged()));
-    //qRegisterMetaType<QAbstractSeries*>();
-    //qRegisterMetaType<QLineSeries*>();
-    //qRegisterMetaType<QAbstractAxis*>();
+    connect(&m_dataUpdater, SIGNAL(timeout()), this, SLOT(updateAllSeries()));
 }
 
 SerialChart::SerialChart(int count, QObject *parent) :
@@ -63,6 +56,16 @@ void SerialChart::initserial(void){
     file->setFileName(filename);
 }
 
+bool SerialChart::isopen(void){
+    return Device->isOpen();
+}
+
+void SerialChart::close(void){
+    Device->close();
+    file->close();
+    m_dataUpdater.stop();
+}
+
 void SerialChart::Receivedata(void){
     QString received, buffer;
     while (Device->canReadLine()){
@@ -82,7 +85,7 @@ void SerialChart::Receivedata(void){
     }
     data_count = data.size();
     //qDebug() << data;
-    qDebug() << "data count is" << data_count;
+    //qDebug() << "data count is" << data_count;
     if(data_count)
         emit datarecieved();
 }
@@ -91,10 +94,9 @@ float SerialChart::Readdata(void){
     return m_data;
 }
 
-void SerialChart::update(QAbstractSeries* series, int index){
-    QLineSeries *xySeries = static_cast<QLineSeries *>(series);
+void SerialChart::update(QLineSeries* series, int index){
     QVector<QPointF> points = m_chartdata.at(index);
-    xySeries->replace(points);
+    series->replace(points);
 }
 
 void SerialChart::ReadSerialData(void)
@@ -118,7 +120,7 @@ void SerialChart::txtfileadd(void){
     textdata.append(data.at(data_count - 1));
     textdata.append('\n');
 
-    qDebug() << textdata;
+    //qDebug() << textdata;
     textarray.append(textdata);
     textdata.clear();
     file->write(textarray);
@@ -132,8 +134,9 @@ void SerialChart::handleSceneChanged(void)
 }
 
 
-void SerialChart::initchart(void){
-    for(int i = 0; i < CHNUM; i++){
+void SerialChart::initchart(int channel){
+    this->channel = channel;
+    for(int i = 0; i < channel; i++){
         ch_points[i].clear();
         ch_points[i].reserve(colCount);
         for(int j = 0; j < colCount; j++){
@@ -142,10 +145,9 @@ void SerialChart::initchart(void){
     }
 
     m_chartdata.clear();
-    for(int i = 0; i < CHNUM; i++){
+    for(int i = 0; i < channel; i++){
         m_chartdata.append(ch_points[i]);
     }
-    qDebug()<< "init completed!";
 }
 
 void SerialChart::Setcolcount(int x){
@@ -159,15 +161,18 @@ void SerialChart::startUpdates(QLineSeries* series, int index)
 
 void SerialChart::TimerStart(void)
 {
+    if(m_dataUpdater.isActive()){
+        m_dataUpdater.stop();
+        qDebug() << "timer stopped";
+    }
     m_dataUpdater.setInterval(1/60*1000); // 60Hz
     m_dataUpdater.setSingleShot(true);
 
-    connect(&m_dataUpdater, SIGNAL(timeout()), this, SLOT(updateAllSeries()));
 }
 
 void SerialChart::updateAllSeries()
 {
-    for(int i = 0; i < CHNUM; i++){
+    for(int i = 0; i < channel; i++){
         update(chart_series[i], i);
     }
 }
