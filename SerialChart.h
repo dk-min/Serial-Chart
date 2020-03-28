@@ -16,6 +16,7 @@ QT_END_NAMESPACE
 
 
 #define BUFFER 128
+#define CHNUM 10
 
 class SerialChart : public QObject
 {
@@ -84,8 +85,7 @@ private:
     QAbstractSeries *series;
     QList<QVector<QPointF> > m_chartdata;
 
-    QVector<QPointF> ch1_points;
-    QVector<QPointF> ch2_points;
+    QVector<QPointF> ch_points[CHNUM];
     int buf_point = 0;
     qreal x = 0;
     qreal y = 0;
