@@ -31,18 +31,22 @@ void Plot::setYhigh(QString Yhigh){
     yhigh = Yhigh.toDouble();
 }
 
+void Plot::setChannel(QString Channel){
+    channel = Channel.toInt();
+}
+
 void Plot::initserial(SerialChart* mserial){
     serialchart = mserial;
 }
 
 void Plot::start(void){
     serialchart->Setcolcount(xhigh);
-    serialchart->initchart();
+    serialchart->initchart(channel);
     qDebug()<< "init chart completed!";
     serialchart->initserial();
     qDebug() << "serial init completed!";
 
-    for(int i = 0; i < CHNUM; i++){
+    for(int i = 0; i < channel; i++){
         serialchart->startUpdates(this->seriesreturn(i), i);
     }
     qDebug() << "serial chat update completed!";
@@ -56,7 +60,7 @@ void Plot::start(void){
     chart->addAxis(axisY, Qt::AlignLeft);
     chart->removeAllSeries();
     qDebug() << "remove all charts";
-    for(int i = 0; i < CHNUM; i++){
+    for(int i = 0; i < channel; i++){
         series[i].setUseOpenGL(true);
         chart->addSeries(&series[i]);
     }

@@ -76,16 +76,16 @@ void SerialChart::Receivedata(void){
         //qDebug() << received;
     }
     if(received.contains(",", Qt::CaseInsensitive)){
-        //qDebug() << "it contains ','";
+        qDebug() << "it contains ','";
         data = received.split(",", QString::SkipEmptyParts); // remove blank parts
     }
     else {
-        //qDebug() << "it dosen't contain ','";
-        data = received.split("", QString::SkipEmptyParts);
+        qDebug() << "it dosen't contain ','";
+        data = received.split(",", QString::SkipEmptyParts);
     }
     data_count = data.size();
     //qDebug() << data;
-    //qDebug() << "data count is" << data_count;
+    qDebug() << "data count is" << data_count;
     if(data_count)
         emit datarecieved();
 }
@@ -94,10 +94,9 @@ float SerialChart::Readdata(void){
     return m_data;
 }
 
-void SerialChart::update(QAbstractSeries* series, int index){
-    QLineSeries *xySeries = static_cast<QLineSeries *>(series);
+void SerialChart::update(QLineSeries* series, int index){
     QVector<QPointF> points = m_chartdata.at(index);
-    xySeries->replace(points);
+    series->replace(points);
 }
 
 void SerialChart::ReadSerialData(void)
@@ -135,8 +134,9 @@ void SerialChart::handleSceneChanged(void)
 }
 
 
-void SerialChart::initchart(void){
-    for(int i = 0; i < CHNUM; i++){
+void SerialChart::initchart(int channel){
+    this->channel = channel;
+    for(int i = 0; i < channel; i++){
         ch_points[i].clear();
         ch_points[i].reserve(colCount);
         for(int j = 0; j < colCount; j++){
@@ -145,7 +145,7 @@ void SerialChart::initchart(void){
     }
 
     m_chartdata.clear();
-    for(int i = 0; i < CHNUM; i++){
+    for(int i = 0; i < channel; i++){
         m_chartdata.append(ch_points[i]);
     }
 }
@@ -172,8 +172,7 @@ void SerialChart::TimerStart(void)
 
 void SerialChart::updateAllSeries()
 {
-    qDebug() << "update called";
-    for(int i = 0; i < CHNUM; i++){
+    for(int i = 0; i < channel; i++){
         update(chart_series[i], i);
     }
 }

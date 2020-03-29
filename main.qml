@@ -1,13 +1,13 @@
 import QtQuick 2.12
 import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
-import QtQuick.Controls.Material 2.0
+import QtQuick.Controls.Material 2.12
 
 ApplicationWindow {
     id: applicationWindow
     visible: true
     width: 320
-    height: 420
+    height: 460
     title: qsTr("Human & System Lab.")
 
     Material.theme: Material.Grey
@@ -122,6 +122,25 @@ ApplicationWindow {
             verticalAlignment: Text.AlignVCenter
         }
 
+        Text {
+            id: channel
+            width: 140
+            height: 40
+            color: "#ffffff"
+            text: qsTr("set channel")
+            verticalAlignment: Text.AlignVCenter
+            font.pixelSize: 20
+            font.bold: true
+            horizontalAlignment: Text.AlignLeft
+        }
+
+        TextArea {
+            id: textArea4
+            text: qsTr("4")
+            font.pixelSize: 20
+            verticalAlignment: Text.AlignVCenter
+        }
+
         Button {
             id: button
             text: qsTr("Connect!")
@@ -131,6 +150,7 @@ ApplicationWindow {
                 windowC.setXhigh(textArea1.text);
                 windowC.setYlow(textArea2.text);
                 windowC.setYhigh(textArea3.text);
+                windowC.setChannel(textArea4.text);
                 windowC.start();
             }
         }

@@ -41,10 +41,10 @@ public:
     int Readcounter(void);
     float Readdata(void);
     Q_INVOKABLE void initserial(void);
-    Q_INVOKABLE void update(QAbstractSeries* series, int index);
+    Q_INVOKABLE void update(QLineSeries* series, int index);
 
     void ReadSerialData(void);
-    void initchart(void);
+    void initchart(int channel);
     void TimerStart(void);
 
     bool isopen(void);
@@ -87,7 +87,7 @@ private:
 
     int debug_count = 0;
     QAbstractSeries *series;
-    QList<QVector<QPointF> > m_chartdata;
+    QList<QVector<QPointF>> m_chartdata;
 
     QVector<QPointF> ch_points[CHNUM];
     int buf_point = 0;
@@ -97,6 +97,7 @@ private:
 
     QElapsedTimer m_fpsTimer;
     QTimer m_dataUpdater;
+    int channel;
 
 };
 

@@ -32,6 +32,7 @@ public:
     Q_INVOKABLE void setYlow(QString Ylow);
     Q_INVOKABLE void setXhigh(QString Xhigh);
     Q_INVOKABLE void setYhigh(QString Yhigh);
+    Q_INVOKABLE void setChannel(QString Channel);
     Q_INVOKABLE void start(void);
 
     void initserial(SerialChart* mserial);
@@ -53,6 +54,7 @@ private:
     QFont font;
     qreal xlow, ylow, yhigh;
     qint32 xhigh;
+    int channel;
 };
 
 #endif // PLOT_H
