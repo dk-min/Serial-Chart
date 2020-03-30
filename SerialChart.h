@@ -47,6 +47,7 @@ public:
     void initchart(int channel);
     void TimerStart(void);
 
+
     bool isopen(void);
     void close(void);
 
