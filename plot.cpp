@@ -40,6 +40,9 @@ void Plot::initserial(SerialChart* mserial){
 }
 
 void Plot::start(void){
+    if(serialchart->isopen()){
+        serialchart->close();
+    }
     serialchart->Setcolcount(xhigh);
     serialchart->initchart(channel);
     qDebug()<< "init chart completed!";
