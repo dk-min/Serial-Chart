@@ -46,6 +46,27 @@ void Plot::start(void){
     serialchart->initserial();
     qDebug() << "serial init completed!";
 
+    if(series != nullptr){
+        delete[] series;
+    }
+    series = new QLineSeries[channel]();
+    for(int i = 0; i < channel; i++){
+        series[i].setUseOpenGL(true);
+        chart->addSeries(&series[i]);
+        qDebug() << "i count is " << i;
+    }
+    qDebug() << "chart series init completed!";
+    axisX = new QValueAxis;
+    axisY = new QValueAxis;
+    chart->addAxis(axisX, Qt::AlignBottom);
+    chart->addAxis(axisY, Qt::AlignLeft);
+    chart->setAxisX(axisX, &series[0]);
+    chart->setAxisY(axisY, &series[0]);
+    axisX->setRange(0, xhigh);
+    axisY->setRange(ylow, yhigh);
+
+    qDebug() << "attach completed";
+
     for(int i = 0; i < channel; i++){
         serialchart->startUpdates(this->seriesreturn(i), i);
     }
@@ -53,40 +74,22 @@ void Plot::start(void){
     serialchart->TimerStart();
     qDebug() << "Timer start!";
 
-
-
-    chart->addAxis(axisX, Qt::AlignBottom);
-    qDebug() << "add Axis";
-    chart->addAxis(axisY, Qt::AlignLeft);
-    chart->removeAllSeries();
-    qDebug() << "remove all charts";
-    for(int i = 0; i < channel; i++){
-        series[i].setUseOpenGL(true);
-        chart->addSeries(&series[i]);
-    }
-    qDebug() << "chart series init completed!";
-
-
-
-    chart->setAxisX(axisX, &series[0]);
-    chart->setAxisY(axisY, &series[0]);
-
-    axisX->setRange(0, xhigh);
-    axisY->setRange(ylow, yhigh);
-
     chart->createDefaultAxes();
     chart->setTitle("Serial Chart");
     chart->legend()->setVisible(true);
     chart->legend()->setAlignment(Qt::AlignBottom);
 
+    qDebug() << "Axes and title, legend setting is completed";
+
     QChartView *chartView = new QChartView(chart);
     chartView->chart()->setTheme(QChart::ChartThemeLight);
     chartView->setRenderHint(QPainter::Antialiasing);
+    setCentralWidget(chartView);
+
 
     QObject::connect(chart->scene(), &QGraphicsScene::changed,
                          serialchart, &SerialChart::handleSceneChanged);
 
-    setCentralWidget(chartView);
     setWindowTitle("Serial Chart");
     resize(1600, 1000);
     show();
@@ -96,10 +99,6 @@ void Plot::start(void){
 void Plot::closeEvent(QCloseEvent *event){
     qDebug() << "close event";
     if(serialchart->isopen()){
-        close();
-        qDebug() << "port is opened";
-        chart->close();
-        qDebug() << "chart closed";
         serialchart->close();
         event->accept();
     }
@@ -108,3 +107,13 @@ void Plot::closeEvent(QCloseEvent *event){
         event->ignore();
     }
 }
+
+/*
+Plot::~Plot(){
+    delete serialchart;
+    delete axisX;
+    delete axisY;
+    delete[] series;
+    delete chart;
+}
+*/

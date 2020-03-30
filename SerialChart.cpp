@@ -76,15 +76,15 @@ void SerialChart::Receivedata(void){
         //qDebug() << received;
     }
     if(received.contains(",", Qt::CaseInsensitive)){
-        qDebug() << "it contains ','";
+        //qDebug() << "it contains ','";
         data = received.split(",", QString::SkipEmptyParts); // remove blank parts
     }
     else {
-        qDebug() << "it dosen't contain ','";
+        //qDebug() << "it dosen't contain ','";
         data = received.split(",", QString::SkipEmptyParts);
     }
     data_count = data.size();
-    //qDebug() << data;
+    qDebug() << data;
     qDebug() << "data count is" << data_count;
     if(data_count)
         emit datarecieved();
@@ -135,6 +135,7 @@ void SerialChart::handleSceneChanged(void)
 
 
 void SerialChart::initchart(int channel){
+    buf_point = 0;
     this->channel = channel;
     for(int i = 0; i < channel; i++){
         ch_points[i].clear();

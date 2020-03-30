@@ -22,6 +22,7 @@ class Plot : public QMainWindow{
 public:
     //Plot(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
     Plot();
+    //~Plot() override;
 
 
     QLineSeries *seriesreturn(int index);
@@ -49,11 +50,11 @@ private:
     QValueAxis *axisX = new QValueAxis;
     QValueAxis *axisY = new QValueAxis;
 
-    QLineSeries *series = new QLineSeries[CHNUM]();
+    QLineSeries *series;
     QChart *chart = new QChart();
     QFont font;
-    qreal xlow, ylow, yhigh;
-    qint32 xhigh;
+    qreal xlow = 0, ylow = 0, yhigh = 4096;
+    qint32 xhigh = 1024;
     int channel;
 };
 
