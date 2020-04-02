@@ -4,12 +4,12 @@
 
 #include <QAbstractSeries> 
 
-SerialChart::SerialChart(QObject *parent) : QObject(parent)
+SerialChart::SerialChart(QObject *parent) : QObject(parent), thread(new draw(this))
 {
     connect(Device, SIGNAL(readyRead()),this, SLOT(Receivedata()));
     connect(this, SIGNAL(datarecieved()),this, SLOT(txtfileadd()));
-    connect(this, SIGNAL(isComportchanged()), this, SLOT(handleSceneChanged()));
-    connect(&m_dataUpdater, SIGNAL(timeout()), this, SLOT(updateAllSeries()));
+    //connect(this, SIGNAL(isComportchanged()), this, SLOT(handleSceneChanged()));
+    connect(m_dataUpdater, SIGNAL(timeout()), this, SLOT(updateAllSeries()));
 }
 
 SerialChart::SerialChart(int count, QObject *parent) :
@@ -63,31 +63,32 @@ bool SerialChart::isopen(void){
 void SerialChart::close(void){
     Device->close();
     file->close();
-    m_dataUpdater.stop();
+    m_dataUpdater->stop();
 }
 
 void SerialChart::Receivedata(void){
+
+    //qDebug() << time.elapsed();
+
+    //time.restart();
+
     QString received, buffer;
     while (Device->canReadLine()){
         buffer = Device-> readLine(); // reads in data line by line, separated by \n or \r characters
-        if(buffer.contains("\n")){
-            received = buffer.trimmed();  // remove separated flag \n or \r
-        }
         //qDebug() << received;
     }
-    if(received.contains(",", Qt::CaseInsensitive)){
-        //qDebug() << "it contains ','";
-        data = received.split(",", QString::SkipEmptyParts); // remove blank parts
+    if(buffer.contains("\n")){
+        received = buffer.trimmed();  // remove separated flag \n or \r
     }
-    else {
-        //qDebug() << "it dosen't contain ','";
-        data = received.split(",", QString::SkipEmptyParts);
-    }
+
+    data = received.split(",", QString::SkipEmptyParts);
     data_count = data.size();
-    qDebug() << data;
-    qDebug() << "data count is" << data_count;
+
+    //qDebug() << buffer;
+    //qDebug() << "data count is" << data_count;
     if(data_count)
         emit datarecieved();
+
 }
 
 float SerialChart::Readdata(void){
@@ -95,23 +96,27 @@ float SerialChart::Readdata(void){
 }
 
 void SerialChart::update(QLineSeries* series, int index){
-    QVector<QPointF> points = m_chartdata.at(index);
+
+    QVector<QPointF> points = m_chartdata->at(index);
     series->replace(points);
+
 }
 
 void SerialChart::ReadSerialData(void)
 {
     for(int i = 0; i < data_count; i++){
         ch_points[i].replace(buf_point, QPointF(buf_point, data.at(i).toDouble()));
-        m_chartdata.replace(i, ch_points[i]);
+        m_chartdata->replace(i, ch_points[i]);
     }
     if(++buf_point >= colCount){
         buf_point = 0;
     }
+
 }
 
 
 void SerialChart::txtfileadd(void){
+
     file->open(QIODevice::WriteOnly);
     for(int i = 0; i < data_count - 1; i++){
         textdata.append(data.at(i));
@@ -126,11 +131,12 @@ void SerialChart::txtfileadd(void){
     file->write(textarray);
     ReadSerialData();
     file->close();
+
 }
 
 void SerialChart::handleSceneChanged(void)
 {
-    m_dataUpdater.start();
+    m_dataUpdater->start();
 }
 
 
@@ -145,9 +151,9 @@ void SerialChart::initchart(int channel){
         }
     }
 
-    m_chartdata.clear();
+    m_chartdata->clear();
     for(int i = 0; i < channel; i++){
-        m_chartdata.append(ch_points[i]);
+        m_chartdata->append(ch_points[i]);
     }
 }
 
@@ -162,19 +168,25 @@ void SerialChart::startUpdates(QLineSeries* series, int index)
 
 void SerialChart::TimerStart(void)
 {
-    if(m_dataUpdater.isActive()){
-        m_dataUpdater.stop();
-        qDebug() << "timer stopped";
-    }
-    m_dataUpdater.setInterval(1/60*1000); // 60Hz
-    m_dataUpdater.setSingleShot(true);
+    //m_dataUpdater->start();
+    m_dataUpdater->setInterval(30); // 60Hz
+    m_dataUpdater->setSingleShot(false);
 
+    //thread->processDraw(chart_series,channel, m_chartdata);
 }
 
 void SerialChart::updateAllSeries()
 {
+
     for(int i = 0; i < channel; i++){
-        update(chart_series[i], i);
+        //update(chart_series[i], i);
+        QVector<QPointF> points = m_chartdata->at(i);
+        chart_series[i]->replace(points);
     }
+
+    //thread->processDraw(chart_series,channel, m_chartdata);
+
+
+
 }
 
