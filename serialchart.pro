@@ -15,6 +15,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         SerialChart.cpp \
+        draw.cpp \
         main.cpp \
         plot.cpp \
         portnumber.cpp
@@ -34,6 +35,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     SerialChart.h \
+    draw.h \
     plot.h \
     portnumber.h
 
