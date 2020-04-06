@@ -78,7 +78,7 @@ ApplicationWindow {
 
         TextArea {
             id: textArea1
-            text: qsTr("2048")
+            text: qsTr("1024")
             font.pixelSize: 20
             verticalAlignment: Text.AlignVCenter
         }
@@ -117,7 +117,7 @@ ApplicationWindow {
 
         TextArea {
             id: textArea3
-            text: qsTr("1024")
+            text: qsTr("4096")
             font.pixelSize: 20
             verticalAlignment: Text.AlignVCenter
         }

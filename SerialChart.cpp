@@ -8,7 +8,7 @@ SerialChart::SerialChart(QObject *parent) : QObject(parent), thread(new draw(thi
 {
     connect(Device, SIGNAL(readyRead()),this, SLOT(Receivedata()));
     connect(this, SIGNAL(datarecieved()),this, SLOT(txtfileadd()));
-    //connect(this, SIGNAL(isComportchanged()), this, SLOT(handleSceneChanged()));
+    connect(this, SIGNAL(isComportchanged()), this, SLOT(handleSceneChanged()));
     connect(m_dataUpdater, SIGNAL(timeout()), this, SLOT(updateAllSeries()));
 }
 
@@ -62,25 +62,22 @@ bool SerialChart::isopen(void){
 
 void SerialChart::close(void){
     Device->close();
-    file->close();
     m_dataUpdater->stop();
+
 }
 
 void SerialChart::Receivedata(void){
-
     //qDebug() << time.elapsed();
-
     //time.restart();
-
     QString received, buffer;
     while (Device->canReadLine()){
         buffer = Device-> readLine(); // reads in data line by line, separated by \n or \r characters
-        //qDebug() << received;
+        //qDebug() << buffer;
+        if(buffer.contains("\n")){
+            textdata.append(buffer);
+            received = buffer.trimmed();  // remove separated flag \n or \r
+        }
     }
-    if(buffer.contains("\n")){
-        received = buffer.trimmed();  // remove separated flag \n or \r
-    }
-
     data = received.split(",", QString::SkipEmptyParts);
     data_count = data.size();
 
@@ -88,7 +85,17 @@ void SerialChart::Receivedata(void){
     //qDebug() << "data count is" << data_count;
     if(data_count)
         emit datarecieved();
+    else
+        textdata.clear();
+}
 
+void SerialChart::txtfileadd(void){
+    textarray.append(textdata);
+    textdata.clear();
+    file->open(QIODevice::WriteOnly);
+    file->write(textarray);
+    file->close();
+    ReadSerialData();
 }
 
 float SerialChart::Readdata(void){
@@ -115,28 +122,10 @@ void SerialChart::ReadSerialData(void)
 }
 
 
-void SerialChart::txtfileadd(void){
-
-    file->open(QIODevice::WriteOnly);
-    for(int i = 0; i < data_count - 1; i++){
-        textdata.append(data.at(i));
-        textdata.append(',');
-    }
-    textdata.append(data.at(data_count - 1));
-    textdata.append('\n');
-
-    //qDebug() << textdata;
-    textarray.append(textdata);
-    textdata.clear();
-    file->write(textarray);
-    ReadSerialData();
-    file->close();
-
-}
-
 void SerialChart::handleSceneChanged(void)
 {
     m_dataUpdater->start();
+    //thread->processDraw(chart_series,channel, m_chartdata);
 }
 
 
@@ -155,6 +144,7 @@ void SerialChart::initchart(int channel){
     for(int i = 0; i < channel; i++){
         m_chartdata->append(ch_points[i]);
     }
+    //time.start();
 }
 
 void SerialChart::Setcolcount(int x){
@@ -177,16 +167,9 @@ void SerialChart::TimerStart(void)
 
 void SerialChart::updateAllSeries()
 {
-
     for(int i = 0; i < channel; i++){
-        //update(chart_series[i], i);
         QVector<QPointF> points = m_chartdata->at(i);
         chart_series[i]->replace(points);
     }
-
-    //thread->processDraw(chart_series,channel, m_chartdata);
-
-
-
 }
 

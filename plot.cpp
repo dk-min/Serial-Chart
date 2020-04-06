@@ -8,7 +8,7 @@ Plot::Plot(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(parent){
 }
 */
 Plot::Plot(){
-
+    series = new QLineSeries[channel]();
 }
 
 QLineSeries *Plot::seriesreturn(int index){
@@ -49,24 +49,28 @@ void Plot::start(void){
     serialchart->initserial();
     qDebug() << "serial init completed!";
 
-    if(series != nullptr){
+    if(series != nullptr)
         delete[] series;
-    }
     series = new QLineSeries[channel]();
+
     for(int i = 0; i < channel; i++){
         series[i].setUseOpenGL(true);
         chart->addSeries(&series[i]);
         qDebug() << "i count is " << i;
     }
+
     qDebug() << "chart series init completed!";
     axisX = new QValueAxis;
     axisY = new QValueAxis;
-    chart->addAxis(axisX, Qt::AlignBottom);
-    chart->addAxis(axisY, Qt::AlignLeft);
-    chart->setAxisX(axisX, &series[0]);
-    chart->setAxisY(axisY, &series[0]);
-    axisX->setRange(0, xhigh);
-    axisY->setRange(ylow, yhigh);
+    //chart->addAxis(axisX, Qt::AlignBottom);
+    //chart->addAxis(axisY, Qt::AlignLeft);
+
+
+
+    //series->attachAxis(axisX);
+    //series->attachAxis(axisY);
+    //chart->setAxisX(axisX, &series[0]);
+    //chart->setAxisY(axisY, &series[0]);
 
     qDebug() << "attach completed";
 
@@ -78,6 +82,14 @@ void Plot::start(void){
     qDebug() << "Timer start!";
 
     chart->createDefaultAxes();
+    for(int i = 0; i < channel; i++){
+        chart->setAxisX(axisX, &series[i]);
+        chart->setAxisY(axisY, &series[i]);
+    }
+
+    axisX->setMax(xhigh);
+    axisY->setRange(ylow, yhigh);
+
     chart->setTitle("Serial Chart");
     chart->legend()->setVisible(true);
     chart->legend()->setAlignment(Qt::AlignBottom);
@@ -110,7 +122,6 @@ void Plot::closeEvent(QCloseEvent *event){
         event->ignore();
     }
 }
-
 /*
 Plot::~Plot(){
     delete serialchart;

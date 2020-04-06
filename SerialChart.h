@@ -72,7 +72,7 @@ public slots:
 private:
     bool mbaudchange;
     QString m_baudrate;
-    //QElapsedTimer time;
+    QElapsedTimer time;
     qint64 buf[2] = {0,};
 
     bool mcomchange;
