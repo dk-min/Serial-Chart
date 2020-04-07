@@ -26,4 +26,5 @@ void draw::run(){
         QVector<QPointF> points = chartdata->at(i);
         line[i]->replace(points);
     }
+    msleep(10);
 }

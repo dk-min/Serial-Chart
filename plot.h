@@ -1,6 +1,7 @@
 #ifndef PLOT_H
 #define PLOT_H
 
+
 #include <QObject>
 
 #include <QtCharts/QChartView>
@@ -22,7 +23,9 @@ class Plot : public QMainWindow{
 public:
     //Plot(QWidget *parent = nullptr, Qt::WindowFlags flags = Qt::WindowFlags());
     Plot();
-    //~Plot() override;
+    ~Plot() override{
+
+    }
 
 
     QLineSeries *seriesreturn(int index);
@@ -53,7 +56,7 @@ private:
     QLineSeries *series;
     QChart *chart = new QChart();
     QFont font;
-    qreal xlow = 0, ylow = 0, yhigh = 4096;
+    qreal xlow = 0, ylow = 512, yhigh = 4096;
     qint32 xhigh = 1024;
     int channel;
 };

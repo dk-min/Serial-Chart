@@ -1,5 +1,4 @@
 import QtQuick 2.12
-import QtQuick.Window 2.12
 import QtQuick.Controls 2.12
 import QtQuick.Controls.Material 2.12
 
@@ -8,9 +7,9 @@ ApplicationWindow {
     visible: true
     width: 320
     height: 460
+    Material.theme: Material.System
     title: qsTr("Human & System Lab.")
 
-    Material.theme: Material.Grey
 
     Grid {
         id: grid
@@ -27,10 +26,10 @@ ApplicationWindow {
         anchors.fill: parent
 
         Text {
+
             id: serial
             width: 140
             height: 40
-            color: "#ffffff"
             text: qsTr("Serial Port")
             verticalAlignment: Text.AlignVCenter
             font.bold: true
@@ -42,13 +41,13 @@ ApplicationWindow {
             font.bold: true
             font.pixelSize: 20
             model: portnum.comboList
+            onActivated : portnum.comboList
         }
 
         Text {
             id: serial1
             width: 140
             height: 40
-            color: "#ffffff"
             text: qsTr("Baud Rate")
             verticalAlignment: Text.AlignVCenter
             horizontalAlignment: Text.AlignLeft
@@ -67,7 +66,6 @@ ApplicationWindow {
             id: xhigh
             width: 140
             height: 40
-            color: "#ffffff"
             text: qsTr("set Xhigh")
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 20
@@ -78,7 +76,7 @@ ApplicationWindow {
 
         TextArea {
             id: textArea1
-            text: qsTr("2048")
+            text: qsTr("1024")
             font.pixelSize: 20
             verticalAlignment: Text.AlignVCenter
         }
@@ -87,7 +85,6 @@ ApplicationWindow {
             id: ylow
             width: 140
             height: 40
-            color: "#ffffff"
             text: qsTr("set Ylow")
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 20
@@ -107,7 +104,6 @@ ApplicationWindow {
             id: yhigh
             width: 140
             height: 40
-            color: "#ffffff"
             text: qsTr("set Yhigh")
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 20
@@ -117,7 +113,7 @@ ApplicationWindow {
 
         TextArea {
             id: textArea3
-            text: qsTr("1024")
+            text: qsTr("4096")
             font.pixelSize: 20
             verticalAlignment: Text.AlignVCenter
         }
@@ -126,7 +122,6 @@ ApplicationWindow {
             id: channel
             width: 140
             height: 40
-            color: "#ffffff"
             text: qsTr("set channel")
             verticalAlignment: Text.AlignVCenter
             font.pixelSize: 20
@@ -153,6 +148,7 @@ ApplicationWindow {
                 windowC.setChannel(textArea4.text);
                 windowC.start();
             }
+            highlighted: true
         }
         Button {
             id: button1
@@ -160,12 +156,9 @@ ApplicationWindow {
             onClicked: {
                 Qt.quit()
             }
+
+            //highlighted: true
         }
-
-
-
-
-
     }
 
 }

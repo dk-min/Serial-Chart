@@ -15,12 +15,13 @@ using namespace QtCharts;
 
 class draw : public QThread{
     Q_OBJECT
+
 public:
     draw(QObject *parent = nullptr);
     ~draw();
 
+public slots :
     void processDraw(QLineSeries** series, const int channel, QList<QVector<QPointF>>* chartdata);
-
 
 protected:
     void run();

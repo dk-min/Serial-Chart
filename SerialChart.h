@@ -1,8 +1,12 @@
 #ifndef SERIAL_H
 #define SERIAL_H
+
+#include "draw.h"
+
 #include <QObject>
 #include <QStringList>
 #include <QtSerialPort>
+#include <QTime>
 
 
 #include <QXYSeries>
@@ -68,6 +72,8 @@ public slots:
 private:
     bool mbaudchange;
     QString m_baudrate;
+    QElapsedTimer time;
+    qint64 buf[2] = {0,};
 
     bool mcomchange;
     QString m_comport;
@@ -88,17 +94,19 @@ private:
 
     int debug_count = 0;
     QAbstractSeries *series;
-    QList<QVector<QPointF>> m_chartdata;
+    QList<QVector<QPointF>> *m_chartdata = new QList<QVector<QPointF>>;
 
-    QVector<QPointF> ch_points[CHNUM];
+    QVector<QPointF> *ch_points = new QVector<QPointF>[CHNUM];
     int buf_point = 0;
     qreal x = 0;
     qreal y = 0;
     QLineSeries* chart_series[CHNUM];
 
     QElapsedTimer m_fpsTimer;
-    QTimer m_dataUpdater;
+    QTimer *m_dataUpdater = new QTimer;
     int channel;
+
+    draw *thread;
 
 };
 

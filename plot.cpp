@@ -8,7 +8,7 @@ Plot::Plot(QWidget *parent, Qt::WindowFlags flags) : QMainWindow(parent){
 }
 */
 Plot::Plot(){
-
+    series = new QLineSeries[channel]();
 }
 
 QLineSeries *Plot::seriesreturn(int index){
@@ -40,6 +40,7 @@ void Plot::initserial(SerialChart* mserial){
 }
 
 void Plot::start(void){
+    QFont title, axis_font;
     if(serialchart->isopen()){
         serialchart->close();
     }
@@ -49,24 +50,28 @@ void Plot::start(void){
     serialchart->initserial();
     qDebug() << "serial init completed!";
 
-    if(series != nullptr){
+    if(series != nullptr)
         delete[] series;
-    }
     series = new QLineSeries[channel]();
+
     for(int i = 0; i < channel; i++){
         series[i].setUseOpenGL(true);
         chart->addSeries(&series[i]);
         qDebug() << "i count is " << i;
     }
+
     qDebug() << "chart series init completed!";
     axisX = new QValueAxis;
     axisY = new QValueAxis;
-    chart->addAxis(axisX, Qt::AlignBottom);
-    chart->addAxis(axisY, Qt::AlignLeft);
-    chart->setAxisX(axisX, &series[0]);
-    chart->setAxisY(axisY, &series[0]);
-    axisX->setRange(0, xhigh);
-    axisY->setRange(ylow, yhigh);
+    //chart->addAxis(axisX, Qt::AlignBottom);
+    //chart->addAxis(axisY, Qt::AlignLeft);
+
+
+
+    //series->attachAxis(axisX);
+    //series->attachAxis(axisY);
+    //chart->setAxisX(axisX, &series[0]);
+    //chart->setAxisY(axisY, &series[0]);
 
     qDebug() << "attach completed";
 
@@ -78,8 +83,23 @@ void Plot::start(void){
     qDebug() << "Timer start!";
 
     chart->createDefaultAxes();
+    for(int i = 0; i < channel; i++){
+        chart->setAxisX(axisX, &series[i]);
+        chart->setAxisY(axisY, &series[i]);
+    }
+
+    axisX->setMax(xhigh);
+    axisY->setRange(ylow, yhigh);
     chart->setTitle("Serial Chart");
+    title.setBold(true);
+    title.setPointSize(20);
+    title.setWeight(99);
+    axis_font.setPointSize(10);
+    axisX->setLabelsFont(axis_font);
+    axisY->setLabelsFont(axis_font);
+    chart->setTitleFont(title);
     chart->legend()->setVisible(true);
+    chart->legend()->setFont(title);
     chart->legend()->setAlignment(Qt::AlignBottom);
 
     qDebug() << "Axes and title, legend setting is completed";
@@ -93,8 +113,8 @@ void Plot::start(void){
     QObject::connect(chart->scene(), &QGraphicsScene::changed,
                          serialchart, &SerialChart::handleSceneChanged);
 
-    setWindowTitle("Serial Chart");
-    resize(1600, 1000);
+    setWindowTitle("DKMIN Serial Chart");
+    resize(1200, 800);
     show();
 
 }
@@ -110,7 +130,6 @@ void Plot::closeEvent(QCloseEvent *event){
         event->ignore();
     }
 }
-
 /*
 Plot::~Plot(){
     delete serialchart;
